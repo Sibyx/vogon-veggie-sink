@@ -1,0 +1,55 @@
+on:
+  push:
+    branches: [ master ]
+    tags: [ '*.*.*' ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          submodules: 'recursive'
+      - name: esp-idf build
+        uses: espressif/esp-idf-ci-action@v1
+        with:
+          esp_idf_version: v5.2
+          target: esp32c6
+          path: '.'
+          command: idf.py build -DSDKCONFIG=sdkconfig.ci
+      - name: Archive build output artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: build
+          path: |
+            build/bootloader/bootloader.bin
+            build/partition_table/partition-table.bin
+            build/VogonVeggieSensorFirmware.bin
+      - name: Upload bootloader.bin to release
+        if: github.ref_type == 'tag'
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: build/bootloader/bootloader.bin
+          asset_name: bootloader.bin
+          tag: ${{ github.ref }}
+          overwrite: true
+      - name: Upload partition-table.bin to release
+        if: github.ref_type == 'tag'
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: build/partition_table/partition-table.bin
+          asset_name: partition-table.bin
+          tag: ${{ github.ref }}
+          overwrite: true
+      - name: Upload firmware to release
+        if: github.ref_type == 'tag'
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: build/VogonVeggieSink.bin
+          asset_name: VogonVeggieSink.bin
+          tag: ${{ github.ref }}
+          overwrite: true
