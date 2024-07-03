@@ -1,0 +1,21 @@
+menu "Publisher Configuration"
+    config PUBLISHER_WIFI_SSID
+        string "Publisher: WiFi SSID"
+        default "VogonMothership"
+
+    config PUBLISHER_WIFI_PASSWORD
+        string "Publisher: WiFi Password"
+        default "DontPanic!42"
+
+    config PUBLISHER_MQTT_BROKER
+        string "Publisher: MQTT broker"
+        default "mqtt://192.168.0.1"
+
+    config PUBLISHER_SINK
+        string "Publisher: Sink UUID"
+        default "b68a4827-3998-409a-99c8-d985918be910"
+
+    config PUBLISHER_DEVICE_MANUFACTURER_NAME
+        string "Publisher: BLE manufacture name of the IoT nodes (serves also as protocol version)"
+        default "VOG1"
+endmenu

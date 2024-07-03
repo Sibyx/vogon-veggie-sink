@@ -1,4 +1,4 @@
 #include "shared.h"
 
-QueueHandle_t bleDeviceQueue;
-EventGroupHandle_t connectionEventGroup;
+EventGroupHandle_t connection_event_group;
+QueueHandle_t advertisement_queue;  // For publishing / processing BLE advertisements to MQTT broker

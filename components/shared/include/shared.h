@@ -12,5 +12,5 @@ typedef struct {
     uint8_t manufacturer_data_len;
 } ble_advertisement_t;
 
-extern QueueHandle_t bleDeviceQueue;
-extern EventGroupHandle_t connectionEventGroup;
+extern QueueHandle_t advertisement_queue;
+extern EventGroupHandle_t connection_event_group;

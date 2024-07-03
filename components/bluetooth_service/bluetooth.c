@@ -5,7 +5,6 @@ static const char* TAG = "BLE";
 
 static void ble_advertisement_report_callback(struct ble_gap_event *event, void *arg) {
     if (event->type == BLE_GAP_EVENT_DISC) {
-        //ESP_LOGI(TAG, "BLE advertisement received");
         ble_advertisement_t *bleAdvertisement = (ble_advertisement_t *)malloc(sizeof(ble_advertisement_t));
 
         // Copy bleAdvertisement address
@@ -29,7 +28,7 @@ static void ble_advertisement_report_callback(struct ble_gap_event *event, void 
                 memcpy(bleAdvertisement->name, &adv_data[i + 2], name_len);
                 bleAdvertisement->name[name_len] = '\0';
 
-                if (strcmp(bleAdvertisement->name, "VOGON") == 0) {
+                if (strcmp(bleAdvertisement->name, "VOG1") == 0) {
                     vogonFound = true;
                 } else {
                     break;
@@ -47,7 +46,7 @@ static void ble_advertisement_report_callback(struct ble_gap_event *event, void 
         }
         // Add the bleAdvertisement to the queue
         if (vogonFound) {
-            if (xQueueSend(bleDeviceQueue, &bleAdvertisement, portMAX_DELAY) != pdPASS) {
+            if (xQueueSend(advertisement_queue, &bleAdvertisement, portMAX_DELAY) != pdPASS) {
                 ESP_LOGE(TAG, "Failed to send to queue");
                 free(bleAdvertisement);
             }
