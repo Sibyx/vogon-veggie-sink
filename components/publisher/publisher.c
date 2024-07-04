@@ -61,40 +61,32 @@ _Noreturn void publisher_task(void *param) {
             ESP_LOG_BUFFER_HEX(TAG, advertisement->manufacturer_data, advertisement->manufacturer_data_len);
 
             if (strcmp(advertisement->name, CONFIG_PUBLISHER_DEVICE_MANUFACTURER_NAME) == 0) {
-                uint16_t sensor = *(uint16_t*)(advertisement->manufacturer_data);
-                uint8_t parameter = *(uint8_t*)(advertisement->manufacturer_data + 2);
-                uint8_t type = *(uint8_t*)(advertisement->manufacturer_data + 3);
+                uint16_t sensor = (advertisement->manufacturer_data[1] << 8) | advertisement->manufacturer_data[0];
+                uint8_t parameter = advertisement->manufacturer_data[2];
+                uint8_t type = advertisement->manufacturer_data[3];
 
                 cJSON *root = cJSON_CreateObject();
                 cJSON_AddStringToObject(root, "address", addr_str);
                 cJSON_AddNumberToObject(root, "sensor", sensor);
                 cJSON_AddNumberToObject(root, "parameter", parameter);
 
+                const void *data = advertisement->manufacturer_data + 4;
+
                 switch (type) {
                     case PROTOCOL_TYPE_UINT8:
-                        cJSON_AddNumberToObject(
-                                root, "value", *(uint8_t *)(advertisement->manufacturer_data + 4)
-                                );
+                        cJSON_AddNumberToObject(root, "value", *(uint8_t *)data);
                         break;
                     case PROTOCOL_TYPE_UINT16:
-                        cJSON_AddNumberToObject(
-                                root, "value", *(uint16_t *)(advertisement->manufacturer_data + 4)
-                        );
+                        cJSON_AddNumberToObject(root, "value", *(uint16_t *)data);
                         break;
                     case PROTOCOL_TYPE_UINT32:
-                        cJSON_AddNumberToObject(
-                                root, "value", *(uint32_t *)(advertisement->manufacturer_data + 4)
-                        );
+                        cJSON_AddNumberToObject(root, "value", *(uint32_t *)data);
                         break;
                     case PROTOCOL_TYPE_FLOAT:
-                        cJSON_AddNumberToObject(
-                                root, "value", *(float *)(advertisement->manufacturer_data + 4)
-                        );
+                        cJSON_AddNumberToObject(root, "value", *(float *)data);
                         break;
                     case PROTOCOL_TYPE_DOUBLE:
-                        cJSON_AddNumberToObject(
-                                root, "value", *(double *)(advertisement->manufacturer_data) + 4
-                        );
+                        cJSON_AddNumberToObject(root, "value", *(double *)data);
                         break;
                     default:
                         break;
