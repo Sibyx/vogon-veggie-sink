@@ -6,6 +6,7 @@ This changelog suppose to follow rules defined in the [changelog.md](https://cha
 
 - **Changed**: VOG1 BLE protocol introduced
 - **Changed**: WiFI / BLE refactor
+- **Changed**: Device MAC address is used for sink identification
 
 ## 0.1.0 - 2024-06-10
 

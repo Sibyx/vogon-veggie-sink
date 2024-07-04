@@ -11,10 +11,6 @@ menu "Publisher Configuration"
         string "Publisher: MQTT broker"
         default "mqtt://192.168.0.1"
 
-    config PUBLISHER_SINK
-        string "Publisher: Sink UUID"
-        default "b68a4827-3998-409a-99c8-d985918be910"
-
     config PUBLISHER_DEVICE_MANUFACTURER_NAME
         string "Publisher: BLE manufacture name of the IoT nodes (serves also as protocol version)"
         default "VOG1"

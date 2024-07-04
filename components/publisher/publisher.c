@@ -1,3 +1,4 @@
+#include <esp_mac.h>
 #include "shared.h"
 #include "publisher.h"
 
@@ -48,16 +49,23 @@ _Noreturn void publisher_task(void *param) {
     xEventGroupWaitBits(connection_event_group, MQTT_CONNECTED_BIT, false, true, portMAX_DELAY);
 
     ble_advertisement_t *advertisement;
-    char addr_str[MAC_LEN];
+    char node_addr_str[MAC_LEN];
+    char sink_addr_str[MAC_LEN];
+    uint8_t sink_addr[6];
     char topic[TOPIC_LEN];
+
+    esp_read_mac(sink_addr, ESP_MAC_EFUSE_FACTORY);
+    snprintf(sink_addr_str, sizeof(sink_addr_str), "%02x:%02x:%02x:%02x:%02x:%02x",
+             sink_addr[0], sink_addr[1], sink_addr[2], sink_addr[3], sink_addr[4], sink_addr[5]
+             );
 
     while (true) {
         if (xQueueReceive(advertisement_queue, &advertisement, portMAX_DELAY) == pdPASS) {
-            snprintf(addr_str, sizeof(addr_str), "%02x:%02x:%02x:%02x:%02x:%02x",
+            snprintf(node_addr_str, sizeof(node_addr_str), "%02x:%02x:%02x:%02x:%02x:%02x",
                      advertisement->address[0], advertisement->address[1], advertisement->address[2],
                      advertisement->address[3], advertisement->address[4], advertisement->address[5]);
 
-            ESP_LOGD(TAG, "Device (name=%s; address=%s)", addr_str, advertisement->name);
+            ESP_LOGD(TAG, "Node Device (name=%s; address=%s)", node_addr_str, advertisement->name);
             ESP_LOG_BUFFER_HEX(TAG, advertisement->manufacturer_data, advertisement->manufacturer_data_len);
 
             if (strcmp(advertisement->name, CONFIG_PUBLISHER_DEVICE_MANUFACTURER_NAME) == 0) {
@@ -66,7 +74,7 @@ _Noreturn void publisher_task(void *param) {
                 uint8_t type = advertisement->manufacturer_data[3];
 
                 cJSON *root = cJSON_CreateObject();
-                cJSON_AddStringToObject(root, "address", addr_str);
+                cJSON_AddStringToObject(root, "address", node_addr_str);
                 cJSON_AddNumberToObject(root, "sensor", sensor);
                 cJSON_AddNumberToObject(root, "parameter", parameter);
 
@@ -93,7 +101,7 @@ _Noreturn void publisher_task(void *param) {
                 }
 
                 char *message = cJSON_Print(root);
-                snprintf(topic, sizeof(topic), "vogonveggie/%s/%s/raw", CONFIG_PUBLISHER_SINK, addr_str);
+                snprintf(topic, sizeof(topic), "vogonveggie/%s/%s/raw", sink_addr_str, node_addr_str);
 
                 if (message) {
                     esp_mqtt_client_publish(mqtt_client, topic, message, 0, 1, 0);
