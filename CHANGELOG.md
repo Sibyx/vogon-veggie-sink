@@ -2,7 +2,7 @@
 
 This changelog suppose to follow rules defined in the [changelog.md](https://changelog.md)
 
-## 0.2.0 - TBD
+## 0.2.0 - 2024-07-04
 
 - **Changed**: VOG1 BLE protocol introduced
 - **Changed**: WiFI / BLE refactor
